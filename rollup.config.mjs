@@ -10,8 +10,6 @@ import path from 'path'
 import {fileURLToPath} from 'url';
 import alias from "@rollup/plugin-alias";
 import preserveDirectives from 'rollup-preserve-directives'
-// import transformTaggedTemplate from 'rollup-plugin-transform-tagged-template';
-// import resolve from '@rollup/plugin-node-resolve';
 import cleaner from 'rollup-plugin-cleaner';
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
@@ -27,27 +25,7 @@ export default {
     },
     external: [],
     plugins: [
-
         commonjs(),
-        // transformTaggedTemplate({
-        //     tagsToProcess: ['html', 'css'],
-        //     parserOptions: {
-        //         sourceType: "module",
-        //         plugins: [
-        //             "typescript",
-        //             [
-        //                 "decorators",
-        //                 {decoratorsBeforeExport: true}
-        //             ]
-        //         ]
-        //     },
-        //     transformer(data) {
-        //         data = data.replace(/\s([{}()>~+=^$:!;])\s/gm, '$1');
-        //         data = data.replace(/([",[]])\s+/gm, '$1');
-        //         data = data.replace(/\s{2,}/gm, ' ');
-        //         return data.trim();
-        //     }
-        // }),
         typescript({
             tsconfig: 'tsconfig.json',
             sourceMap: true,
