@@ -2,6 +2,7 @@
   "name": "calieo-hightlight",
   "version": "0.1.0",
   "private": true,
+  "description": "源代码高亮工具，支持导出图片和选择高亮风格",
   "scripts": {
     "dev": "tsx src/server.ts",
     "vite": "vite",

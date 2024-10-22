@@ -1,15 +1,58 @@
-import {attr, css, ExecutionContext, FASTElement, html, ref} from "@microsoft/fast-element";
+import {attr, children, css, ExecutionContext, FASTElement, html, ref, repeat} from "@microsoft/fast-element";
 
+interface ICodeTheme {
+    name: string;
+    value: string;
+    style: string;
+    default?: boolean;
+}
+
+const codeThemes: ICodeTheme[] = [
+    {
+        name: 'Default', value: 'prism', style: 'light', default: true
+    },
+    {
+        name: 'Coy', value: 'prism-coy', style: 'light'
+    },
+    {
+        name: 'Okaidia', value: 'prism-okaidia', style: 'dark'
+    },
+    {
+        name: 'Twilight', value: 'prism-twilight', style: 'dark'
+    },
+    {
+        name: 'Funky', value: 'prism-funky', style: 'light'
+    },
+    {
+        name: 'Dark', value: 'prism-dark', style: 'dark'
+    },
+    {
+        name: 'Solarized Light', value: 'prism-solarizedlight', style: 'light'
+    },
+    {
+        name: 'Tomorrow', value: 'prism-tomorrow', style: 'dark'
+    }
+]
 
 export class SelectorElement extends FASTElement {
     @attr
     selectedValue: string | undefined = 'javascript';
+    selectedTheme: ICodeTheme | undefined = codeThemes.find(x => x.default);
+
+    codeThemes: ICodeTheme[] = codeThemes;
 
     valueChanged(context: ExecutionContext) {
         console.log('valueChanged', (context.event.target as HTMLSelectElement).value);
         this.selectedValue = (context.event.target as HTMLSelectElement).value;
     }
 
+    themeChanged(context: ExecutionContext) {
+        console.log('themeChanged', (context.event.target as HTMLSelectElement).value);
+        const selectElement = context.event.target as HTMLSelectElement;
+        const optionElement = selectElement.options[selectElement.selectedIndex];
+        const theme = codeThemes.find(x => x.value === optionElement.value);
+        this.selectedTheme = theme || codeThemes.find(x => x.default);
+    }
 }
 
 const template = html<SelectorElement>`
@@ -42,6 +85,13 @@ const template = html<SelectorElement>`
             <option value="zig">Zig</option>
             <option value="yaml">Yaml</option>
             <option value="perl">Perl</option>
+        </select>
+        <select @change="${(x, v: ExecutionContext) => x.themeChanged(v)}">
+            ${repeat(x => x.codeThemes, html<string>`
+                <option value="${(x: ICodeTheme) => x.value}">
+                    ${(x: ICodeTheme) => x.name}
+                </option>
+            `)}
         </select>
     </div>
 `

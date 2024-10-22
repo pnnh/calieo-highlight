@@ -1,9 +1,20 @@
 import {attr, css, ExecutionContext, FASTElement, html, ref} from "@microsoft/fast-element";
+import {isDev} from "@/services/client/config";
 
+let defaultContent = ''
+
+if (isDev) {
+    defaultContent = `AppElement.define({
+name: "calieo-highlight",
+template,
+styles
+});`
+
+}
 
 export class EditorElement extends FASTElement {
     @attr
-    content: string | undefined;
+    content: string | undefined = defaultContent;
 
     valueChanged(context: ExecutionContext) {
         this.content = (context.event.target as HTMLTextAreaElement).value;
@@ -13,13 +24,7 @@ export class EditorElement extends FASTElement {
 const template = html<EditorElement>`
     <div class="editorContainer">
     <textarea placeholder="输入代码"
-              @change="${(x, v: ExecutionContext) => x.valueChanged(v)}">
-AppElement.define({
-name: "calieo-highlight",
-template,
-styles
-});
-        </textarea>
+              @change="${(x, v: ExecutionContext) => x.valueChanged(v)}">${defaultContent}</textarea>
     </div>
 `
 

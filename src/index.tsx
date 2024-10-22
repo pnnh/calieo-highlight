@@ -11,7 +11,7 @@ import {webLightTheme} from '@fluentui/tokens';
 import {highlightCode} from "@/services/client/highlight";
 import './components/selector'
 import './components/editor'
-import {globalStylesUrl} from "@/services/client/style";
+import {globalStylesUrl, prismjsThemeUrl} from "@/services/client/style";
 import {SelectorElement} from "@/components/selector";
 import {EditorElement} from "@/components/editor";
 import domToImage from 'dom-to-image-more';
@@ -25,6 +25,9 @@ TextAreaDefinition.define(FluentDesignSystem.registry);
 class AppElement extends FASTElement {
     @attr
     name: string | undefined;
+
+    @attr
+    darkTheme: boolean = false;
 
     codeBlock: EditorElement | undefined;
     previewBlock: HTMLDivElement | undefined;
@@ -40,8 +43,18 @@ class AppElement extends FASTElement {
         if (!this.previewBlock || !codeText) {
             return;
         }
+        const theme = this.selectorElement?.selectedTheme;
+        this.darkTheme = theme?.style === 'dark';
+
         const html = highlightCode(codeText, lang);
-        this.previewBlock.innerHTML = `<pre><code class="language-${lang}">${html}</code></pre>`;
+        this.previewBlock.innerHTML = `
+    <link rel="stylesheet" href="${prismjsThemeUrl(theme ? theme.value : 'prism')}">
+<pre><code class="language-${lang}">${html}</code></pre>
+`;
+    }
+
+    isDarkTheme() {
+        return this.selectorElement?.selectedTheme?.style === 'dark';
     }
 
     exportImage() {
@@ -69,7 +82,7 @@ class AppElement extends FASTElement {
 }
 
 const template = html<AppElement>`
-    <link rel="stylesheet" href="${globalStylesUrl}"/>
+    <link rel="stylesheet" href="${globalStylesUrl}">
     <div class="codeBlockContainer">
         <calieo-editor ${ref('codeBlock')}></calieo-editor>
     </div>
@@ -80,11 +93,12 @@ const template = html<AppElement>`
         <fluent-button appearance="accent" @click="${(x) => x.formatCode()}">格式化</fluent-button>
         <fluent-button appearance="accent" @click="${(x) => x.exportImage()}">导出图像</fluent-button>
     </div>
-    <div ${ref('previewBlock')} class="previewBlock"></div>
+    <div class="previewContainer">
+        <div ${ref('previewBlock')} class="previewBlock ${x => x.darkTheme ? 'dark' : ''}"></div>
+    </div>
 `
 
 const styles = css`
-
     .codeBlockContainer {
         font-family: monospace;
         font-size: 0.9rem;
@@ -110,8 +124,14 @@ const styles = css`
         margin-bottom: 1rem;
     }
 
+    .previewContainer {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
     .previewBlock {
-        margin: 1rem;
         padding: 1rem;
         background-color: #ffffff;
         width: calc(100% - 4rem);
@@ -119,6 +139,10 @@ const styles = css`
         max-height: 32rem;
         overflow: auto;
         scrollbar-width: thin;
+
+        &.dark {
+            background-color: #333;
+        }
 
         pre {
             padding: 0;
